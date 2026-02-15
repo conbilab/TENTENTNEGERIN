@@ -1,0 +1,310 @@
+/* 귤 박스 게임 스타일 */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  background: linear-gradient(160deg, #2d5016 0%, #7cb342 100%);
+  min-height: 100vh;
+  color: #1b5e20;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ========== 시작 화면 ========== */
+.start-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.start-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.start-content h1 {
+  margin: 0 0 12px;
+  font-size: 1.75rem;
+  color: #e65100;
+}
+
+.start-desc {
+  margin: 0 0 24px;
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.start-btn {
+  display: inline-block;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(180deg, #f57c00 0%, #e65100 100%);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(229, 81, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.start-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(229, 81, 0, 0.45);
+}
+
+.start-btn:active {
+  transform: scale(0.98);
+}
+
+.records {
+  margin-top: 28px;
+  text-align: left;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 20px;
+}
+
+.records h2 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.records-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.8;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.records-empty {
+  margin: 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* ========== 게임 화면 ========== */
+.game-screen {
+  min-height: 100vh;
+  padding: 16px 0;
+}
+
+.game-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.info {
+  display: flex;
+  gap: 16px;
+}
+
+.score,
+.stage-label {
+  font-size: 0.95rem;
+}
+
+.sum-hint {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+/* 게임 영역 */
+.game-area {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 70vh;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  overflow: visible;
+  user-select: none;
+  touch-action: none;
+}
+
+/* 귤 감싸는 클릭 영역 (그리드 위치) */
+.tangerine-wrap {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tangerine-wrap.selected .tangerine {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.95), 0 0 0 6px rgba(245, 124, 0, 0.5);
+}
+
+/* 귤 본체 */
+.tangerine {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #1b5e20;
+  background: radial-gradient(circle at 30% 30%, #ffcc80, #f57c00);
+  box-shadow: inset -2px -3px 4px rgba(0, 0, 0, 0.2), 1px 2px 4px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.15s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* 껍질 연출용 (기본 숨김) */
+.tangerine-peel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 4px solid #ffb74d;
+  border-radius: 50%;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ----- 사라지는 연출: 껍질이 까짐 ----- */
+.tangerine-wrap.disappear-peel .tangerine-peel {
+  opacity: 1;
+  animation: peel-off 0.6s ease-out forwards;
+}
+
+.tangerine-wrap.disappear-peel .tangerine {
+  animation: fruit-shrink 0.55s ease-out forwards;
+}
+
+@keyframes peel-off {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(120deg) scale(1.8) translate(15px, -20px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes fruit-shrink {
+  to {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* ----- 사라지는 연출: 터짐 ----- */
+.tangerine-wrap.disappear-pop .tangerine {
+  animation: pop-burst 0.5s ease-out forwards;
+}
+
+@keyframes pop-burst {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* ----- 사라지는 연출: 웃음 / 울음 (이모지로 바뀐 뒤 페이드) ----- */
+.tangerine-wrap.disappear-smile .tangerine,
+.tangerine-wrap.disappear-cry .tangerine {
+  font-size: 1.5rem;
+  animation: emoji-out 0.6s ease-out forwards;
+}
+
+@keyframes emoji-out {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.tangerine-wrap.disappear {
+  pointer-events: none;
+}
+
+/* 게임 종료 / 단계 클리어 메시지 */
+.result {
+  margin-top: 16px;
+  padding: 16px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+}
+
+@media (max-width: 480px) {
+  .tangerine-wrap {
+    width: 40px;
+    height: 40px;
+  }
+  .tangerine {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  .tangerine-peel {
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border-width: 3px;
+  }
+}
