@@ -1,4 +1,4 @@
-/* 귤 박스 게임 스타일 */
+/* 텐텐(TENTEN) 게임 스타일 */
 
 * {
   box-sizing: border-box;
@@ -33,6 +33,36 @@ body {
   width: 100%;
   text-align: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 언어 선택 버튼 */
+.lang-select {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.lang-select-inline {
+  margin-bottom: 0;
+}
+.lang-btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  color: #666;
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.lang-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+.lang-btn.active {
+  background: #e65100;
+  color: #fff;
+  border-color: #e65100;
 }
 
 .start-content h1 {
@@ -124,6 +154,13 @@ body {
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .info {

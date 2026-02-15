@@ -5,9 +5,108 @@
   var MIN_NUM = 1;
   var MAX_NUM = 9;
   var RECORDS_KEY = "tangerineBoxRecords";
+  var LANG_KEY = "tentenLang";
   var RECORDS_MAX = 20;
   var DISAPPEAR_TYPES = ["peel", "pop", "smile", "cry"];
   var DISAPPEAR_DURATION_MS = 650;
+
+  // 다국어 문구 (한국어 / 영어 / 일본어)
+  var translations = {
+    ko: {
+      title: "텐텐(TENTEN) - 합이 10이 되게 선택하세요",
+      gameName: "텐텐(TENTEN)",
+      startDesc: "합이 10이 되는 귤을 클릭해서 선택하세요. 단계를 클리어하면 다음 단계로!",
+      startBtn: "시작하기",
+      recordsTitle: "기록",
+      scoreLabel: "점수:",
+      stageLabel: "단계:",
+      hintDefault: "귤을 클릭해 선택하세요",
+      hintSum: "선택 합: ",
+      clearAll: "전체 클리어! 최종 점수: ",
+      clearAllSuffix: "점",
+      stageClear: "단계 클리어! 다음 단계로...",
+      noRecords: "아직 기록이 없습니다.",
+      recordStage: "단계 클리어",
+      recordDuration: " 소요"
+    },
+    en: {
+      title: "TENTEN - Select numbers that add up to 10",
+      gameName: "TENTEN",
+      startDesc: "Click tangerines that add up to 10. Clear stages to advance!",
+      startBtn: "Start",
+      recordsTitle: "Records",
+      scoreLabel: "Score:",
+      stageLabel: "Stage:",
+      hintDefault: "Click tangerines to select",
+      hintSum: "Sum: ",
+      clearAll: "All clear! Final score: ",
+      clearAllSuffix: "",
+      stageClear: "Stage clear! Next stage...",
+      noRecords: "No records yet.",
+      recordStage: "clear",
+      recordDuration: ""
+    },
+    ja: {
+      title: "テンテン(TENTEN) - 合計10を選ぼう",
+      gameName: "テンテン(TENTEN)",
+      startDesc: "合計が10になるみかんをクリックして選んでね。ステージをクリアして次へ進もう！",
+      startBtn: "スタート",
+      recordsTitle: "記録",
+      scoreLabel: "スコア:",
+      stageLabel: "ステージ:",
+      hintDefault: "みかんをクリックして選択",
+      hintSum: "合計: ",
+      clearAll: "全クリア！最終スコア: ",
+      clearAllSuffix: "点",
+      stageClear: "ステージクリア！次へ...",
+      noRecords: "記録はまだありません。",
+      recordStage: "ステージクリア",
+      recordDuration: "所要"
+    }
+  };
+
+  var currentLang = (function () {
+    try {
+      var saved = localStorage.getItem(LANG_KEY);
+      return saved && translations[saved] ? saved : "ko";
+    } catch (e) {
+      return "ko";
+    }
+  })();
+
+  function getT(key) {
+    return (translations[currentLang] && translations[currentLang][key]) || translations.ko[key] || key;
+  }
+
+  /** 언어 변경 시 DOM·문구 적용 및 localStorage 저장 */
+  function setLang(lang) {
+    if (!translations[lang]) return;
+    currentLang = lang;
+    try {
+      localStorage.setItem(LANG_KEY, lang);
+    } catch (e) {}
+    document.documentElement.lang = lang === "ja" ? "ja" : lang === "en" ? "en" : "ko";
+    document.title = getT("title");
+    applyLang();
+  }
+
+  /** 화면에 보이는 모든 i18n 텍스트 갱신 */
+  function applyLang() {
+    var g = getT;
+    var el = function (id) { return document.getElementById(id); };
+    if (el("i18n-gameName")) el("i18n-gameName").textContent = g("gameName");
+    if (el("i18n-gameName-header")) el("i18n-gameName-header").textContent = g("gameName");
+    if (el("i18n-startDesc")) el("i18n-startDesc").textContent = g("startDesc");
+    if (el("start-btn")) el("start-btn").textContent = g("startBtn");
+    if (el("i18n-recordsTitle")) el("i18n-recordsTitle").textContent = g("recordsTitle");
+    if (el("i18n-scoreLabel")) el("i18n-scoreLabel").textContent = g("scoreLabel");
+    if (el("i18n-stageLabel")) el("i18n-stageLabel").textContent = g("stageLabel");
+    if (sumHintEl) updateSumHint();
+    document.querySelectorAll(".lang-btn").forEach(function (btn) {
+      btn.classList.toggle("active", btn.getAttribute("data-lang") === currentLang);
+    });
+    renderRecords();
+  }
 
   // 단계별 귤 개수 (난이도)
   function getTangerineCountForLevel(level) {
@@ -186,7 +285,7 @@
 
   function updateSumHint() {
     var sum = sumOf(selectedTangerines);
-    sumHintEl.textContent = sum > 0 ? "선택 합: " + sum + (sum === TARGET_SUM ? " ✓" : "") : "귤을 클릭해 선택하세요";
+    sumHintEl.textContent = sum > 0 ? getT("hintSum") + sum + (sum === TARGET_SUM ? " ✓" : "") : getT("hintDefault");
   }
 
   /**
@@ -241,13 +340,13 @@
     var maxLevel = 10;
     if (currentLevel >= maxLevel) {
       saveRecord(currentLevel);
-      resultEl.textContent = "전체 클리어! 최종 점수: " + score + "점";
+      resultEl.textContent = getT("clearAll") + score + getT("clearAllSuffix");
       resultEl.classList.remove("hidden");
       return;
     }
     currentLevel++;
     stageEl.textContent = currentLevel;
-    resultEl.textContent = "단계 클리어! 다음 단계로...";
+    resultEl.textContent = getT("stageClear");
     resultEl.classList.remove("hidden");
     setTimeout(function () {
       resultEl.classList.add("hidden");
@@ -288,15 +387,17 @@
     var timeStr = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") + ":" + String(d.getSeconds()).padStart(2, "0");
     var min = Math.floor(r.durationSec / 60);
     var sec = r.durationSec % 60;
-    var durationStr = min + "분 " + sec + "초";
-    return r.stage + "단계 클리어 · " + dateStr + " " + timeStr + " · " + durationStr + " 소요";
+    var durationStr = currentLang === "en" ? min + "m " + sec + "s" : (currentLang === "ja" ? min + "分" + sec + "秒" : min + "분 " + sec + "초");
+    var part = currentLang === "en" ? "Stage " + r.stage + " " + getT("recordStage") : r.stage + getT("recordStage");
+    var suffix = getT("recordDuration");
+    return part + " · " + dateStr + " " + timeStr + (suffix ? " · " + durationStr + suffix : " · " + durationStr);
   }
 
   function renderRecords() {
     var list = loadRecords();
     if (!recordsListEl) return;
     if (list.length === 0) {
-      recordsListEl.innerHTML = "<p class=\"records-empty\">아직 기록이 없습니다.</p>";
+      recordsListEl.innerHTML = "<p class=\"records-empty\">" + getT("noRecords") + "</p>";
       return;
     }
     recordsListEl.innerHTML = list.map(function (r) {
@@ -325,7 +426,11 @@
   }
 
   function init() {
-    renderRecords();
+    setLang(currentLang);
+    document.body.addEventListener("click", function (e) {
+      var btn = e.target.closest(".lang-btn");
+      if (btn && btn.getAttribute("data-lang")) setLang(btn.getAttribute("data-lang"));
+    });
     startBtnEl.addEventListener("click", startGame);
     gameEl.addEventListener("click", handleGameAreaClick);
     gameEl.addEventListener("touchend", function (e) {
